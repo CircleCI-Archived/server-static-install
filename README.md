@@ -1,48 +1,11 @@
 # Static Installer
 
-## Pre-Requisites
+:wave:, this repository contains the scripts required to install a copy of
+CircleCI Server on non-AWS environments.
+It is currently still only tested on Ubuntu 14.04, although 16.04 should also work.
 
-### Services VM
+If you are looking to install Server on a cloud provider, or require the ability to launch remote_docker or machine builds, you should look at [enterprise-setup](https://github.com/circleci/enterprise-setup).
 
-- Running Ubuntu 14.04
-- Minimum 32 GB RAM
-- Minimum 4 CPU (8 preferred)
-- Can route to Nomad Client on ports:
-    - 
-- Can be routed to by developers on ports:
-    - 443
-    - 80
-    - 7171
-    - 8081
-- Can be routed to by admins on ports:
-    - 22
-    - 8800
+## Documentation
 
-### (n) Nomad Client VMs
-
-- Running Ubuntu 14.04
-- Minimum 4 CPU
-- Minimum 8 GB RAM
-- Access to any docker registries that are required
-- Can route to Services VM on Ports:
-    - 4647
-    - 8585
-    - 7171
-    - 3001
-- Can be routed to by developers (for sshing into builds):
-    - 64535-65535
-
-## Usage
-
-### Services
-
-- Copy init script
-- sudo su
-- run init script
-- navigate to the public ip of the host on port 8800 (https)
-
-### Nomad Client
-
-- Copy init script
-- sudo su
-- run init script with env var NOMAD_SERVER_ADDRESS set to the routable ip of the services box
+You can find instructions on settings up static here: [circleci-docs](https://circleci.com/docs/2.0/non-aws/).
