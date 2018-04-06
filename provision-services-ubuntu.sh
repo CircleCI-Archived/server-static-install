@@ -13,9 +13,9 @@ write_config(){
   config_dir=/var/lib/replicated/circle-config
   mkdir -p "$config_dir"
 
-  echo "${HTTP_PROXY}" > $config_dir/http_proxy
-  echo "${HTTPS_PROXY}" > $config_dir/https_proxy
-  echo "${NO_PROXY}" > $config_dir/no_proxy
+  echo "${HTTP_PROXY:-}" > $config_dir/http_proxy
+  echo "${HTTPS_PROXY:-}" > $config_dir/https_proxy
+  echo "${NO_PROXY:-}" > $config_dir/no_proxy
 }
 
 run_installer(){
