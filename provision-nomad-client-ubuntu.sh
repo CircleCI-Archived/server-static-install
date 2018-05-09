@@ -67,6 +67,11 @@ client {
     node_class = "linux-64bit"
     options = {"driver.raw_exec.enable" = "1"}
 }
+
+telemetry {
+    publish_node_metrics = true
+    statsd_address = "${NOMAD_SERVER_ADDRESS}:8125"
+}
 EOT
 
 echo "--------------------------------------"
