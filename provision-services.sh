@@ -19,11 +19,6 @@ write_config(){
 }
 
 run_installer(){
-  echo "-------------------------------------------"
-  echo "     Performing System Updates"
-  echo "-------------------------------------------"
-  apt-get update && apt-get -y upgrade
-
   echo "--------------------------------------------"
   echo "       Finding Private IP"
   echo "--------------------------------------------"
@@ -33,16 +28,6 @@ run_installer(){
   export PRIVATE_IP
 
   echo "Using address: ${PRIVATE_IP}"
-
-  echo "--------------------------------------"
-  echo "        Installing Docker"
-  echo "--------------------------------------"
-  apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
-  apt-get install -y apt-transport-https ca-certificates curl
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  apt-get update
-  apt-get -y install "docker-ce=${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)" cgmanager
 
   echo "--------------------------------------------"
   echo "          Downloading Replicated"
