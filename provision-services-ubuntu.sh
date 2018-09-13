@@ -4,9 +4,17 @@ set -exu
 
 REPLICATED_VERSION="2.10.3"
 DOCKER_VERSION="17.03.2"
+UNAME="$(uname -r)"
+DEBIAN_FRONTEND=noninteractive
+
+is_xenial(){
+  [ "$(cut -d'.' -f1 <<< $UNAME)" = "4" ] && return 0 || return 1
+}
 
 guess_private_ip(){
-  /sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
+  INET="eth0"
+  is_xenial && INET="ens3"
+  /sbin/ifconfig $INET | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
 }
 
 write_config(){
@@ -35,9 +43,13 @@ run_installer(){
   echo "Using address: ${PRIVATE_IP}"
 
   echo "--------------------------------------"
-  echo "        Installing Docker"
+  echo "  Upgrading Kernel & Installing Docker"
   echo "--------------------------------------"
-  apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
+  if is_xenial; then
+    apt-get install -y "linux-image-${UNAME}"
+  else
+    apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
+  fi
   apt-get install -y apt-transport-https ca-certificates curl
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
   add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
