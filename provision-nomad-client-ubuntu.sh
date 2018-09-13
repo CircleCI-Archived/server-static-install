@@ -4,12 +4,28 @@ set -exu
 
 NOMAD_VERSION="0.5.6"
 DOCKER_VERSION="17.03.2"
+UNAME="$(uname -r)"
+DEBIAN_FRONTEND=noninteractive
 
-guess_private_ip(){
-  /sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
+is_xenial(){
+  [ "$(cut -d'.' -f1 <<< $UNAME)" = "4" ] && return 0 || return 1
 }
 
+guess_private_ip(){
+  INET="eth0"
+  is_xenial && INET="ens3"
+  /sbin/ifconfig $INET | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
+}
+
+echo "--------------------------------------------"
+echo "       Finding Private IP"
+echo "--------------------------------------------"
+
+
 PRIVATE_IP=${PRIVATE_IP:-$(guess_private_ip)}
+export PRIVATE_IP
+
+echo "Using address: ${PRIVATE_IP}"
 
 if [ -z "${NOMAD_SERVER_ADDRESS}" ]; then
   echo "The NOMAD_SERVER_ADDRESS env var is required."
@@ -31,7 +47,11 @@ apt-get install -y zip
 echo "--------------------------------------"
 echo "        Installing Docker"
 echo "--------------------------------------"
-apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
+if is_xenial; then
+  apt-get install -y "linux-image-${UNAME}"
+else
+  apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
+fi
 apt-get install -y apt-transport-https ca-certificates curl
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
@@ -72,14 +92,27 @@ EOT
 echo "--------------------------------------"
 echo "      Creating nomad.conf"
 echo "--------------------------------------"
+if is_xenial; then
+cat <<EOT > /etc/systemd/system/nomad.service
+[Unit]
+Description="nomad"
+[Service]
+Restart=always
+RestartSec=30
+TimeoutStartSec=1m
+ExecStart=/usr/bin/nomad agent -config /etc/nomad/config.hcl
+[Install]
+WantedBy=multi-user.target
+EOT
+else
 cat <<EOT > /etc/init/nomad.conf
 start on filesystem or runlevel [2345]
 stop on shutdown
-
 script
     exec nomad agent -config /etc/nomad/config.hcl
 end script
 EOT
+fi
 
 echo "--------------------------------------"
 echo "   Creating ci-privileged network"
