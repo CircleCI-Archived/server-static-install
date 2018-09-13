@@ -1,3 +1,5 @@
+# See https://github.com/bear/iptable-tools for rules documentation
+
 inbound 22
 inbound 80
 inbound 443

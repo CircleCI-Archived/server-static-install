@@ -29,6 +29,14 @@ echo "-------------------------------------------"
 apt-get install -y zip
 
 echo "--------------------------------------"
+echo "       Persisting Iptables"
+echo "--------------------------------------"
+apt-get install -y iptables-persistent
+service netfilter-persistent start
+invoke-rc.d netfilter-persistent save
+service netfilter-persistent stop
+
+echo "--------------------------------------"
 echo "        Installing Docker"
 echo "--------------------------------------"
 apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
