@@ -123,3 +123,4 @@ echo "--------------------------------------"
 echo "      Starting Nomad service"
 echo "--------------------------------------"
 service nomad restart
+is_xenial && systemctl enable nomad
