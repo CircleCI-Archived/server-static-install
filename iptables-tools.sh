@@ -128,8 +128,11 @@ function reset-rules () {
 
   # Default policy is drop
   iptables -P INPUT DROP
-  iptables -P FORWARD DROP
   iptables -P OUTPUT DROP
+
+  # Docker
+  iptables -A INPUT -i docker0 -j ACCEPT
+  iptables -A OUTPUT -o docker0 -j ACCEPT
 
   # Allow localhost
   iptables -A INPUT  -i lo -j ACCEPT
