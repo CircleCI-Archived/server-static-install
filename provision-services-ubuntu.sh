@@ -37,6 +37,8 @@ run_installer(){
   echo "--------------------------------------"
   echo "       Persisting Iptables"
   echo "--------------------------------------"
+  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
+  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
   apt-get install -y iptables-persistent
   service netfilter-persistent start
   invoke-rc.d netfilter-persistent save
