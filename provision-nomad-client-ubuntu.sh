@@ -146,6 +146,11 @@ echo "--------------------------------------"
 echo "   "Configure the shared docker daemon"
 echo "--------------------------------------"
 
+#if they are rerunning the whole nomad script then you gotta remove the user-docker.sock before running this or nohup
+#will complain
+
+rm -rf /tmp/user-docker.sock
+
 ln -s /var/run/docker.sock /tmp/user-docker.sock
 
 ## Configure the shared docker daemon for user builds
