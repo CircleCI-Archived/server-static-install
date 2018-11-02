@@ -3,7 +3,7 @@
 set -exu
 
 NOMAD_VERSION="0.5.6"
-DOCKER_VERSION="17.03.2"
+DOCKER_VERSION="17.12.1"
 UNAME="$(uname -r)"
 DEBIAN_FRONTEND=noninteractive
 
@@ -16,6 +16,12 @@ guess_private_ip(){
   is_xenial && INET="ens3"
   /sbin/ifconfig $INET | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
 }
+
+# Make sure only root can run our script
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
 
 echo "--------------------------------------------"
 echo "       Finding Private IP"
