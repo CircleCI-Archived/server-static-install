@@ -17,6 +17,12 @@ guess_private_ip(){
   /sbin/ifconfig $INET | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
 }
 
+# Make sure only root can run our script
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
 write_config(){
   config_dir=/var/lib/replicated/circle-config
   mkdir -p "$config_dir"
