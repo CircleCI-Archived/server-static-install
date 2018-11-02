@@ -119,8 +119,49 @@ echo "   Creating ci-privileged network"
 echo "--------------------------------------"
 docker network create --driver=bridge --opt com.docker.network.bridge.name=ci-privileged ci-privileged
 
+
 echo "--------------------------------------"
 echo "      Starting Nomad service"
 echo "--------------------------------------"
-service nomad restart
-is_xenial && systemctl enable nomad
+is_xenial
+
+echo "--------------------------------------"
+echo "   "Running nomad with mounted docker socket"
+echo "--------------------------------------"
+
+sudo docker run \
+    --detach \
+    --privileged \
+    --restart on-failure \
+    --network host \
+    --volume /opt/nomad:/opt/nomad \
+    --volume /etc/nomad:/etc/nomad \
+    --volume /var/run/docker.sock:/var/run/docker.sock \
+    --entrypoint nomad \
+    circleci/server-nomad:0.5.6-1 \
+    agent -config /etc/nomad/config.hcl
+
+
+echo "--------------------------------------"
+echo "   "Configure the shared docker daemon"
+echo "--------------------------------------"
+
+ln -s /var/run/docker.sock /tmp/user-docker.sock
+
+## Configure the shared docker daemon for user builds
+sudo nohup dockerd \
+    --exec-root=/tmp/user-docker.exec \
+    --graph=/tmp/user-docker.graph \
+    --host=unix:///tmp/user-docker.sock \
+    --pidfile=/tmp/user-docker.pid &
+
+sleep 5
+chmod 666 /tmp/user-docker.sock
+chmod 666 /var/run/docker.sock
+
+echo 'Node has been configured'
+
+
+
+
+
