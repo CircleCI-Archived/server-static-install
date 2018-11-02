@@ -3,7 +3,7 @@
 set -exu
 
 NOMAD_VERSION="0.5.6"
-DOCKER_VERSION="17.03.2"
+DOCKER_VERSION="17.12.1"
 UNAME="$(uname -r)"
 DEBIAN_FRONTEND=noninteractive
 
