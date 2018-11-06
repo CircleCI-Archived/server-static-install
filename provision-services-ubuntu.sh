@@ -68,14 +68,9 @@ run_installer(){
     apt-get -y install "docker-ce=${DOCKER_VERSION}~ce-0~ubuntu"
   else
     apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
-<<<<<<< HEAD
     apt-get -y install cgmanager
   fi
   apt-get -y install docker-ce=$(docker_package_name)
-=======
-    apt-get -y install "docker-ce=${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)" cgmanager
-  fi
->>>>>>> 4c8caba83ea1cb9325c2eca9b08a8ecc872e4c8a
 
   echo "--------------------------------------------"
   echo "          Downloading Replicated"
