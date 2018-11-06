@@ -62,16 +62,17 @@ apt-get install -y zip
 echo "--------------------------------------"
 echo "        Installing Docker"
 echo "--------------------------------------"
-if is_xenial; then
-  apt-get install -y "linux-image-${UNAME}"
-else
-  apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
-fi
 apt-get install -y apt-transport-https ca-certificates curl
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 apt-get update
-apt-get -y install "docker-ce=${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)" cgmanager
+if is_xenial; then
+  apt-get install -y "linux-image-${UNAME}"
+else
+  apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
+  apt-get -y install cgmanager
+fi
+apt-get -y install docker-ce=$(docker_package_name)
 
 echo "--------------------------------------"
 echo "         Installing nomad"
