@@ -17,6 +17,21 @@ guess_private_ip(){
   /sbin/ifconfig $INET | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
 }
 
+docker_package_name(){
+  # Determines the Docker package name based off the version.
+  # The Ubuntu distro version is no longer required after 17.06.0
+  docker_ver_major=$(echo $DOCKER_VERSION | cut -d "." -f1)
+  docker_ver_minor=$(echo $DOCKER_VERSION | cut -d "." -f2)
+  docker_ver_patch=$(echo $DOCKER_VERSION | cut -d "." -f3)
+
+  if [[ $docker_ver_major -le 17 && $docker_ver_minor -lt 6 ]]
+  then
+    echo "${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)"
+  else
+    echo "${DOCKER_VERSION}~ce-0~ubuntu"
+  fi
+}
+
 # Make sure only root can run our script
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
@@ -60,11 +75,11 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(
 apt-get update
 if is_xenial; then
   apt-get install -y "linux-image-${UNAME}"
-  apt-get -y install "docker-ce=${DOCKER_VERSION}~ce-0~ubuntu"
 else
   apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
-  apt-get -y install "docker-ce=${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)" cgmanager
-  fi
+  apt-get -y install cgmanager
+fi
+apt-get -y install docker-ce=$(docker_package_name)
 
 echo "--------------------------------------"
 echo "         Installing nomad"
