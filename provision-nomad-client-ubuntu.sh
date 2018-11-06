@@ -17,6 +17,21 @@ guess_private_ip(){
   /sbin/ifconfig $INET | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
 }
 
+docker_package_name(){
+  # Determines the Docker package name based off the version.
+  # The Ubuntu distro version is no longer required after 17.06.0
+  docker_ver_major=$(echo $DOCKER_VERSION | cut -d "." -f1)
+  docker_ver_minor=$(echo $DOCKER_VERSION | cut -d "." -f2)
+  docker_ver_patch=$(echo $DOCKER_VERSION | cut -d "." -f3)
+
+  if [[ $docker_ver_major -le 17 && $docker_ver_minor -lt 6 ]]
+  then
+    echo "${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)"
+  else
+    echo "${DOCKER_VERSION}~ce-0~ubuntu"
+  fi
+}
+
 echo "--------------------------------------------"
 echo "       Finding Private IP"
 echo "--------------------------------------------"
