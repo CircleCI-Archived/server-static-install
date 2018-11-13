@@ -2,8 +2,8 @@
 
 set -exu
 
-REPLICATED_VERSION="2.10.3"
-DOCKER_VERSION="17.03.2"
+REPLICATED_VERSION="2.29.0"
+DOCKER_VERSION="17.12.1"
 UNAME="$(uname -r)"
 DEBIAN_FRONTEND=noninteractive
 
@@ -26,6 +26,21 @@ write_config(){
   echo "${NO_PROXY:-}" > $config_dir/no_proxy
 }
 
+docker_package_name(){
+  # Determines the Docker package name based off the version.
+  # The Ubuntu distro version is no longer required after 17.06.0
+  docker_ver_major=$(echo $DOCKER_VERSION | cut -d "." -f1)
+  docker_ver_minor=$(echo $DOCKER_VERSION | cut -d "." -f2)
+  docker_ver_patch=$(echo $DOCKER_VERSION | cut -d "." -f3)
+
+  if [[ $docker_ver_major -le 17 && $docker_ver_minor -lt 6 ]]
+  then
+    echo "${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)"
+  else
+    echo "${DOCKER_VERSION}~ce-0~ubuntu"
+  fi
+}
+
 run_installer(){
   echo "-------------------------------------------"
   echo "     Performing System Updates"
@@ -45,16 +60,18 @@ run_installer(){
   echo "--------------------------------------"
   echo "  Upgrading Kernel & Installing Docker"
   echo "--------------------------------------"
-  if is_xenial; then
-    apt-get install -y "linux-image-${UNAME}"
-  else
-    apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
-  fi
   apt-get install -y apt-transport-https ca-certificates curl
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
   add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   apt-get update
-  apt-get -y install "docker-ce=${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)" cgmanager
+  if is_xenial; then
+    apt-get install -y "linux-image-${UNAME}"
+    apt-get -y install "docker-ce=${DOCKER_VERSION}~ce-0~ubuntu"
+  else
+    apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
+    apt-get -y install cgmanager
+  fi
+  apt-get -y install docker-ce=$(docker_package_name)
 
   echo "--------------------------------------------"
   echo "          Downloading Replicated"
