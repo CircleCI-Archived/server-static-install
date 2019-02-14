@@ -84,7 +84,7 @@ apt-get -y install docker-ce=$(docker_package_name)
 apt-get -y install jq
 tmp=$(mktemp)
 cp /etc/docker/daemon.json /etc/docker/daemon.json.orig
-jq '."userns-remap": "default"' /etc/docker/daemon.json > "$tmp" && mv "$tmp" /etc/docker/daemon.json
+jq '."userns-remap"= "default"' /etc/docker/daemon.json > "$tmp" && mv "$tmp" /etc/docker/daemon.json
 
 echo "--------------------------------------"
 echo "         Installing nomad"
