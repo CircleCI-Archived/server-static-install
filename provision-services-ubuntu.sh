@@ -21,6 +21,7 @@ write_config(){
   config_dir=/var/lib/replicated/circle-config
   mkdir -p "$config_dir"
 
+  # this should persist from replicated install if running proxy. See notes on replicated install below.
   echo "${HTTP_PROXY:-}" > $config_dir/http_proxy
   echo "${HTTPS_PROXY:-}" > $config_dir/https_proxy
   echo "${NO_PROXY:-}" > $config_dir/no_proxy
@@ -76,13 +77,21 @@ run_installer(){
   echo "--------------------------------------------"
   echo "          Downloading Replicated"
   echo "--------------------------------------------"
+
   curl -sSk -o /tmp/get_replicated.sh "https://get.replicated.com/docker?replicated_tag=$REPLICATED_VERSION&replicated_ui_tag=$REPLICATED_VERSION&replicated_operator_tag=$REPLICATED_VERSION"
 
   echo "--------------------------------------------"
   echo "          Installing Replicated"
   echo "--------------------------------------------"
 
-  bash /tmp/get_replicated.sh local-address="$PRIVATE_IP" no-proxy no-docker
+  # by default replcicated will use environment proxy variables to do all the things needed. 
+  # https://help.replicated.com/docs/native/customer-installations/proxies/See 
+  RE_ARGS="no-docker"
+  if [ -z "${HTTP_PROXY}" ]; then
+    #But if customer does not have proxy, we disable proxy discovery, do not set docker proxy, no_host, etc.
+    RE_ARGS="${RE_ARGS} no-proxy" 
+  fi
+  bash /tmp/get_replicated.sh local-address="$PRIVATE_IP" 
 }
 
 run_installer
