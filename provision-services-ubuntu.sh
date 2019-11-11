@@ -5,7 +5,7 @@ set -exu
 REPLICATED_VERSION="2.38.0"
 DOCKER_VERSION="17.12.1"
 UNAME="$(uname -r)"
-DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND=noninteractive
 
 is_xenial(){
   [ "$(cut -d'.' -f1 <<< $UNAME)" = "4" ] && return 0 || return 1
