@@ -2,8 +2,8 @@
 
 set -exu
 
-NOMAD_VERSION="0.5.6"
-DOCKER_VERSION="17.03.2"
+NOMAD_VERSION="0.9.3"
+DOCKER_VERSION="5:18.09.9~3"
 UNAME="$(uname -r)"
 export DEBIAN_FRONTEND=noninteractive
 
@@ -91,7 +91,7 @@ jq '."userns-remap"= "default"' /etc/docker/daemon.json > "$tmp" && mv "$tmp" /e
 echo "--------------------------------------"
 echo "         Installing nomad"
 echo "--------------------------------------"
-curl -o nomad.zip "https://releases.hashicorp.com/nomad/0.5.6/nomad_${NOMAD_VERSION}_linux_amd64.zip"
+curl -o nomad.zip "https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip"
 unzip nomad.zip
 mv nomad /usr/bin
 mkdir -p /etc/nomad
