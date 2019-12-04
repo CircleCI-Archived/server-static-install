@@ -3,7 +3,7 @@
 set -exu
 
 NOMAD_VERSION="0.9.3"
-DOCKER_VERSION="5:18.09.9~3"
+DOCKER_VERSION="18.09.9"
 UNAME="$(uname -r)"
 export DEBIAN_FRONTEND=noninteractive
 
@@ -19,16 +19,29 @@ guess_private_ip(){
 
 docker_package_name(){
   # Determines the Docker package name based off the version.
-  # The Ubuntu distro version is no longer required after 17.06.0
   docker_ver_major=$(echo $DOCKER_VERSION | cut -d "." -f1)
   docker_ver_minor=$(echo $DOCKER_VERSION | cut -d "." -f2)
-  docker_ver_patch=$(echo $DOCKER_VERSION | cut -d "." -f3)
+  
+  if [[ $docker_ver_major -ge 19 ]]; then
+    echo "5:$DOCKER_VERSION~3-0~ubuntu-$(lsb_release -cs)"
+  fi
 
-  if [[ $docker_ver_major -le 17 && $docker_ver_minor -lt 6 ]]
-  then
-    echo "${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)"
-  else
-    echo "${DOCKER_VERSION}~ce-0~ubuntu"
+  if [[ $docker_ver_major == 18 ]]; then
+    if [[ $((10#$docker_ver_minor)) -ge 9 ]]; then
+      echo "5:$DOCKER_VERSION~3-0~ubuntu-$(lsb_release -cs)"
+    elif [[ $((10#$docker_ver_minor)) -le 3 ]]; then
+      echo "$DOCKER_VERSION~ce-0~ubuntu"
+    else
+      echo "$DOCKER_VERSION~ce~3-0~ubuntu"
+    fi
+  fi
+
+  if [[ $docker_ver_major == 17 ]]; then
+    if [[ $((10#$docker_ver_minor)) -lt 6 ]]; then
+      echo "$DOCKER_VERSION~ce-0~ubuntu-$(lsb_release -cs)"
+    else
+      echo "$DOCKER_VERSION~ce-0~ubuntu"
+    fi
   fi
 }
 
