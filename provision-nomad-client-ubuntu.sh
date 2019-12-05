@@ -116,7 +116,7 @@ cat <<EOT > /etc/nomad/config.hcl
 log_level = "DEBUG"
 
 data_dir = "/opt/nomad"
-datacenter = "us-east-1"
+datacenter = "default"
 
 advertise {
     http = "$PRIVATE_IP"
