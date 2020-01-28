@@ -12,9 +12,7 @@ is_xenial(){
 }
 
 guess_private_ip(){
-  INET="eth0"
-  is_xenial && INET="ens3"
-  /sbin/ifconfig $INET | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
+  hostname -I | awk '{ print $1 }'
 }
 
 write_config(){
