@@ -2,8 +2,8 @@
 
 set -exu
 
-NOMAD_VERSION="0.5.6"
-DOCKER_VERSION="17.03.2"
+NOMAD_VERSION="0.9.3"
+DOCKER_VERSION="18.09.9"
 UNAME="$(uname -r)"
 export DEBIAN_FRONTEND=noninteractive
 
@@ -19,16 +19,29 @@ guess_private_ip(){
 
 docker_package_name(){
   # Determines the Docker package name based off the version.
-  # The Ubuntu distro version is no longer required after 17.06.0
   docker_ver_major=$(echo $DOCKER_VERSION | cut -d "." -f1)
   docker_ver_minor=$(echo $DOCKER_VERSION | cut -d "." -f2)
-  docker_ver_patch=$(echo $DOCKER_VERSION | cut -d "." -f3)
+  
+  if [[ $docker_ver_major -ge 19 ]]; then
+    echo "5:$DOCKER_VERSION~3-0~ubuntu-$(lsb_release -cs)"
+  fi
 
-  if [[ $docker_ver_major -le 17 && $docker_ver_minor -lt 6 ]]
-  then
-    echo "${DOCKER_VERSION}~ce-0~ubuntu-$(lsb_release -cs)"
-  else
-    echo "${DOCKER_VERSION}~ce-0~ubuntu"
+  if [[ $docker_ver_major == 18 ]]; then
+    if [[ $((10#$docker_ver_minor)) -ge 9 ]]; then
+      echo "5:$DOCKER_VERSION~3-0~ubuntu-$(lsb_release -cs)"
+    elif [[ $((10#$docker_ver_minor)) -le 3 ]]; then
+      echo "$DOCKER_VERSION~ce-0~ubuntu"
+    else
+      echo "$DOCKER_VERSION~ce~3-0~ubuntu"
+    fi
+  fi
+
+  if [[ $docker_ver_major == 17 ]]; then
+    if [[ $((10#$docker_ver_minor)) -lt 6 ]]; then
+      echo "$DOCKER_VERSION~ce-0~ubuntu-$(lsb_release -cs)"
+    else
+      echo "$DOCKER_VERSION~ce-0~ubuntu"
+    fi
   fi
 }
 
@@ -91,7 +104,7 @@ jq '."userns-remap"= "default"' /etc/docker/daemon.json > "$tmp" && mv "$tmp" /e
 echo "--------------------------------------"
 echo "         Installing nomad"
 echo "--------------------------------------"
-curl -o nomad.zip "https://releases.hashicorp.com/nomad/0.5.6/nomad_${NOMAD_VERSION}_linux_amd64.zip"
+curl -o nomad.zip "https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip"
 unzip nomad.zip
 mv nomad /usr/bin
 mkdir -p /etc/nomad
@@ -103,7 +116,7 @@ cat <<EOT > /etc/nomad/config.hcl
 log_level = "DEBUG"
 
 data_dir = "/opt/nomad"
-datacenter = "us-east-1"
+datacenter = "default"
 
 advertise {
     http = "$PRIVATE_IP"
