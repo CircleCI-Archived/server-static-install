@@ -2,7 +2,7 @@
 
 set -exu
 
-REPLICATED_VERSION="2.38.0"
+REPLICATED_VERSION="2.38.6"
 DOCKER_VERSION="17.12.1"
 UNAME="$(uname -r)"
 export DEBIAN_FRONTEND=noninteractive
