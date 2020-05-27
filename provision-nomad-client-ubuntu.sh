@@ -91,7 +91,9 @@ else
   apt-get install -y "linux-image-extra-$(uname -r)" linux-image-extra-virtual
   apt-get -y install cgmanager
 fi
-apt-get -y install docker-ce=$(docker_package_name)
+
+docker_pkg=$(docker_package_name)
+apt-get -y install docker-ce=${docker_pkg} docker-ce-cli=${docker_pkg}
 
 # force docker to use userns-remap to mitigate CVE 2019-5736
 apt-get -y install jq
