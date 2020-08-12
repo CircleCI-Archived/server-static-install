@@ -100,6 +100,7 @@ mkdir -p /etc/docker
 tmp=$(mktemp)
 cp /etc/docker/daemon.json /etc/docker/daemon.json.orig
 jq '."userns-remap"= "default"' /etc/docker/daemon.json > "$tmp" && mv "$tmp" /etc/docker/daemon.json
+service docker restart
 
 echo "--------------------------------------"
 echo "         Installing nomad"
